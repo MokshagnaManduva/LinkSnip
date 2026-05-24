@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found — LinkSnip</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container" style="display: flex; flex-direction: column; min-height: 100vh;">
+        <nav class="nav">
+            <a href="/" class="nav-brand">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
+                LinkSnip
+            </a>
+            <div class="nav-links">
+                <a href="/stats">Dashboard</a>
+            </div>
+        </nav>
+
+        <main class="error-page">
+            <div class="error-code">404</div>
+            <h2>Oops! Link Not Found</h2>
+            <p>The shortened URL you're looking for doesn't exist, may have been deleted, or never existed in the first place.</p>
+            <a href="/" class="btn btn-primary" style="width: auto;">Return to Homepage</a>
+        </main>
+        
+        <footer style="margin-top: 0;">
+            &copy; 2026 LinkSnip. Built with Python and Flask.
+        </footer>
+    </div>
+</body>
+</html>

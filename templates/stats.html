@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Dashboard — LinkSnip</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <nav class="nav">
+            <a href="/" class="nav-brand">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                </svg>
+                LinkSnip
+            </a>
+            <div class="nav-links">
+                <a href="/">Shorten New Link</a>
+            </div>
+        </nav>
+
+        <main>
+            <div class="stats-header">
+                <h1>Analytics Dashboard</h1>
+                <p style="color: var(--text-secondary);">Real-time performance metrics for all shortened links.</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-label">Total Links</span>
+                    <span class="stat-value">{{ urls|length }}</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Total Clicks</span>
+                    <span class="stat-value">{{ urls|sum(attribute='click_count') }}</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Top Performer</span>
+                    <span class="stat-value" style="font-size: 1.8rem; margin-top: auto;">
+                        {% if urls %}
+                            /{{ urls[0].short_id }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="stats-table">
+                    <thead>
+                        <tr>
+                            <th>Short URL</th>
+                            <th>Original Destination</th>
+                            <th>Clicks</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for url in urls %}
+                        <tr>
+                            <td>
+                                <strong><a href="{{ base_url }}/{{ url.short_id }}" target="_blank">/{{ url.short_id }}</a></strong>
+                            </td>
+                            <td class="original-url-cell">
+                                <a href="{{ url.original_url }}" target="_blank" title="{{ url.original_url }}" class="original-url-text">
+                                    {{ url.original_url | truncate_url(50) }}
+                                </a>
+                            </td>
+                            <td>
+                                <span class="badge {% if url.click_count == 0 %}badge-zero{% endif %}">
+                                    {{ url.click_count }}
+                                </span>
+                            </td>
+                            <td style="color: var(--text-secondary);">
+                                {{ url.created_at.strftime('%b %d, %Y') if url.created_at else 'Unknown' }}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4">
+                                <div class="empty-state">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 16px; opacity: 0.5;"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                                    <h3>No links created yet</h3>
+                                    <p style="margin: 8px 0 20px;">Your shortened links and their analytics will appear here.</p>
+                                    <a href="/" class="btn btn-outline" style="padding: 10px 20px;">Shorten a Link</a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </main>
+
+        <footer>
+            &copy; 2026 LinkSnip. Built with Python and Flask.
+        </footer>
+    </div>
+</body>
+</html>
