@@ -10,6 +10,7 @@ Provides:
 """
 
 import os
+import ssl
 from datetime import datetime, timezone
 
 from sqlalchemy import (
@@ -55,6 +56,8 @@ else:
     # NullPool avoids connection leaks in serverless environments (Vercel)
     # where processes are recycled unpredictably.
     engine_kwargs["poolclass"] = NullPool
+    # pg8000 requires an explicit SSL context; Neon rejects unencrypted connections.
+    engine_kwargs["connect_args"] = {"ssl_context": ssl.create_default_context()}
 
 engine = create_engine(
     DATABASE_URL,
