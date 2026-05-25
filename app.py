@@ -21,7 +21,7 @@ from flask import (
     request,
 )
 
-from db import URL, get_db, shutdown_session
+from db import URL, get_db, init_db, shutdown_session
 from utils import generate_short_id, sanitize_alias, truncate_url, validate_url
 
 # ---------------------------------------------------------------------------
@@ -46,6 +46,20 @@ app.teardown_appcontext(shutdown_session)
 # Make truncate_url available inside Jinja2 templates as a filter.
 app.jinja_env.filters["truncate_url"] = truncate_url
 
+
+# ---------------------------------------------------------------------------
+# Lazy table creation — runs once on the first request
+# ---------------------------------------------------------------------------
+_db_initialized = False
+
+
+@app.before_request
+def _ensure_tables():
+    """Create database tables if they haven't been created yet."""
+    global _db_initialized
+    if not _db_initialized:
+        init_db()
+        _db_initialized = True
 
 
 # =============================================================================

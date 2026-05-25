@@ -69,6 +69,7 @@ else:
 engine = create_engine(
     DATABASE_URL,
     echo=False,
+    pool_pre_ping=True,
     **engine_kwargs,
 )
 
@@ -134,14 +135,13 @@ class URL(Base):
 # =============================================================================
 
 def init_db() -> None:
-    """Create all tables. Only used for local SQLite dev — Neon uses schema.sql."""
+    """
+    Create all tables defined by the Base metadata.
+
+    Safe to call multiple times — SQLAlchemy's create_all() is a no-op for
+    tables that already exist.
+    """
     Base.metadata.create_all(bind=engine)
-
-
-# Auto-create tables for local SQLite only. In production (PostgreSQL/Neon),
-# schema is managed via schema.sql and must not block the cold-start path.
-if DATABASE_URL.startswith("sqlite"):
-    init_db()
 
 
 def get_db():
