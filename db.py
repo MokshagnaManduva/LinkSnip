@@ -69,7 +69,6 @@ else:
 engine = create_engine(
     DATABASE_URL,
     echo=False,
-    pool_pre_ping=True,
     **engine_kwargs,
 )
 

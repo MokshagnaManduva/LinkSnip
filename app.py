@@ -47,19 +47,10 @@ app.teardown_appcontext(shutdown_session)
 app.jinja_env.filters["truncate_url"] = truncate_url
 
 
-# ---------------------------------------------------------------------------
-# Lazy table creation — runs once on the first request
-# ---------------------------------------------------------------------------
-_db_initialized = False
-
-
-@app.before_request
-def _ensure_tables():
-    """Create database tables if they haven't been created yet."""
-    global _db_initialized
-    if not _db_initialized:
-        init_db()
-        _db_initialized = True
+# Auto-create tables for local SQLite dev only.
+# On PostgreSQL/Neon the schema already exists — skip to avoid cold-start timeout.
+if os.environ.get("DATABASE_URL", "").startswith("sqlite") or not os.environ.get("DATABASE_URL"):
+    init_db()
 
 
 # =============================================================================
