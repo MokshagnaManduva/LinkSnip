@@ -12,6 +12,7 @@ Provides:
 import os
 import ssl
 from datetime import datetime, timezone
+from urllib.parse import urlparse, urlencode, urlunparse, parse_qs
 
 from sqlalchemy import (
     Column,
@@ -46,6 +47,12 @@ if DATABASE_URL.startswith("postgres://"):
 # where psycopg2 binary wheels are unavailable.
 if DATABASE_URL.startswith("postgresql://"):
     DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+pg8000://", 1)
+    # pg8000 doesn't accept sslmode as a connect() kwarg — strip it from the
+    # URL and pass SSL via connect_args instead (done below).
+    parsed = urlparse(DATABASE_URL)
+    params = parse_qs(parsed.query, keep_blank_values=True)
+    params.pop("sslmode", None)
+    DATABASE_URL = urlunparse(parsed._replace(query=urlencode(params, doseq=True)))
 
 # For SQLite we need check_same_thread=False to allow Flask's multi-threaded
 # request handling. For MySQL/PostgreSQL this kwarg is silently ignored.
