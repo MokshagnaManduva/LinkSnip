@@ -25,6 +25,7 @@ from sqlalchemy.orm import (
     scoped_session,
     sessionmaker,
 )
+from sqlalchemy.pool import NullPool
 
 
 # =============================================================================
@@ -35,16 +36,30 @@ from sqlalchemy.orm import (
 # Falls back to a local SQLite file so the app works without any config.
 DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///urls.db")
 
+# Neon and some other providers emit "postgres://" but SQLAlchemy 2.x
+# only accepts "postgresql://".
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+
+# Use pg8000 (pure-Python driver) so the app works on Vercel's build env
+# where psycopg2 binary wheels are unavailable.
+if DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+pg8000://", 1)
+
 # For SQLite we need check_same_thread=False to allow Flask's multi-threaded
 # request handling. For MySQL/PostgreSQL this kwarg is silently ignored.
 engine_kwargs = {}
 if DATABASE_URL.startswith("sqlite"):
     engine_kwargs["connect_args"] = {"check_same_thread": False}
+else:
+    # NullPool avoids connection leaks in serverless environments (Vercel)
+    # where processes are recycled unpredictably.
+    engine_kwargs["poolclass"] = NullPool
 
 engine = create_engine(
     DATABASE_URL,
-    echo=False,           # Set True for SQL debug logging
-    pool_pre_ping=True,   # Reconnect stale MySQL connections automatically
+    echo=False,
+    pool_pre_ping=True,
     **engine_kwargs,
 )
 
