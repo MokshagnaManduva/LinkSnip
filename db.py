@@ -64,7 +64,10 @@ else:
     # where processes are recycled unpredictably.
     engine_kwargs["poolclass"] = NullPool
     # pg8000 requires an explicit SSL context; Neon rejects unencrypted connections.
-    engine_kwargs["connect_args"] = {"ssl_context": ssl.create_default_context()}
+    engine_kwargs["connect_args"] = {
+        "ssl_context": ssl.create_default_context(),
+        "timeout": 20,
+    }
 
 engine = create_engine(
     DATABASE_URL,
